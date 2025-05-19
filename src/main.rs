@@ -2,7 +2,6 @@ use axum::{routing::post, Json, Router};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use chrono::Utc;
-use std::env;
 use tokio::net::TcpListener;
 
 #[derive(Deserialize)]
@@ -21,15 +20,14 @@ struct AddResponse {
 
 #[tokio::main]
 async fn main() {
-    // Read PORT from env or default to 3000
-    let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+    // 🔥 Use Railway-provided PORT (defaults to 8080)
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let addr = format!("0.0.0.0:{}", port);
-
-    let app = Router::new().route("/wagmi", post(wagmi_handler));
-
     let listener = TcpListener::bind(&addr).await.unwrap();
+
     println!("🚀 Listening on http://{}", listener.local_addr().unwrap());
 
+    let app = Router::new().route("/wagmi", post(wagmi_handler));
     axum::serve(listener, app).await.unwrap();
 }
 

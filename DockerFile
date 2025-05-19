@@ -1,0 +1,23 @@
+# Use the official Rust image
+FROM rust:1.70-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy dependencies first to cache
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
+
+# Copy actual source
+COPY . .
+
+# Build the app
+RUN cargo build --release
+
+# Expose the port Railway will use
+EXPOSE 8080
+
+# Start the server
+CMD ["./target/release/wagmi_9000"]
